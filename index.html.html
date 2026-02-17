@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MatematikAku – Luas & Volume</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --or:#FF6B35;--ye:#FFD93D;--gr:#2DD4A2;--bl:#4D9FFF;
+  --pu:#9B5DE5;--pk:#FF85A1;--tl:#06C9D7;--rd:#FF4D6D;
+  --dk:#1A1A2E;--dk2:#16213E;--cd:#242448;--cd2:#1E1E3F;
+  --tx:#F0F0FF;--mt:#8888AA;
+  --r:18px;--nb:68px;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dk);}
+body{font-family:'Nunito',sans-serif;color:var(--tx);display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:linear-gradient(135deg,var(--dk2),var(--dk));
+  padding:14px 18px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  position:relative;z-index:10;
+}
+.topbar-title{font-family:'Fredoka One',sans-serif;font-size:1.3rem;letter-spacing:0.03em;}
+.topbar-title span{color:var(--ye);}
+.topbar-back{
+  background:rgba(255,255,255,0.1);border:none;color:var(--tx);
+  width:36px;height:36px;border-radius:10px;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  display:none;
+}
+.topbar-badge{
+  background:rgba(255,217,61,0.18);border:1.5px solid var(--ye);
+  color:var(--ye);font-size:0.75rem;font-weight:800;
+  padding:3px 10px;border-radius:100px;
+}
+
+/* ── SCROLL AREA ── */
+.screen{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:calc(var(--nb) + 16px);
+}
+.screen::-webkit-scrollbar{display:none;}
+
+/* ── BOTTOM NAV ── */
+.bottomnav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  background:var(--dk2);
+  border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;z-index:100;
+  padding:0 0 env(safe-area-inset-bottom,0);
+  height:var(--nb);
+}
+.bnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:transparent;color:var(--mt);
+  font-family:'Nunito',sans-serif;font-size:0.62rem;font-weight:700;
+  cursor:pointer;transition:all 0.2s;padding:6px 2px;
+}
+.bnav-btn .bico{font-size:1.35rem;transition:transform 0.2s;}
+.bnav-btn.active{color:var(--ye);}
+.bnav-btn.active .bico{transform:scale(1.18);}
+
+/* ══════════════════════════════════════
+   HOME SCREEN
+══════════════════════════════════════ */
+.home-hero{
+  background:linear-gradient(160deg,#1A1A4E 0%,#0D0D2B 100%);
+  padding:28px 20px 24px;
+  position:relative;overflow:hidden;
+}
+.home-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 20%,rgba(155,93,229,0.25) 0%,transparent 60%),
+             radial-gradient(ellipse at 10% 80%,rgba(6,201,215,0.2) 0%,transparent 50%);
+}
+.hero-label{
+  display:inline-block;background:rgba(255,217,61,0.15);border:1.5px solid rgba(255,217,61,0.4);
+  color:var(--ye);font-size:0.72rem;font-weight:800;padding:4px 12px;
+  border-radius:100px;margin-bottom:10px;letter-spacing:0.06em;position:relative;
+}
+.hero-title{
+  font-family:'Fredoka One',sans-serif;font-size:1.75rem;line-height:1.15;
+  position:relative;margin-bottom:6px;
+}
+.hero-title span{color:var(--ye);}
+.hero-sub{font-size:0.85rem;color:var(--mt);position:relative;}
+.hero-stars{position:absolute;top:16px;right:16px;font-size:1.8rem;
+  animation:starSpin 6s linear infinite;opacity:0.6;}
+@keyframes starSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+.progress-bar-wrap{background:rgba(255,255,255,0.08);border-radius:100px;height:8px;margin:14px 0 4px;}
+.progress-bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--tl),var(--bl));transition:width 0.5s ease;}
+.progress-text{font-size:0.78rem;color:var(--mt);}
+
+/* materi cards */
+.section-label{
+  font-family:'Fredoka One',sans-serif;font-size:1rem;letter-spacing:0.03em;
+  padding:18px 18px 10px;color:var(--mt);
+}
+.materi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 4px;}
+.mat-card{
+  border-radius:var(--r);padding:18px 14px;cursor:pointer;
+  transition:transform 0.18s,box-shadow 0.18s;
+  position:relative;overflow:hidden;
+  border:1.5px solid rgba(255,255,255,0.08);
+  min-height:130px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.mat-card:active{transform:scale(0.96);}
+.mat-card .mico{font-size:2.2rem;margin-bottom:8px;display:block;}
+.mat-card .mnum{
+  font-size:0.65rem;font-weight:800;letter-spacing:0.1em;
+  padding:2px 8px;border-radius:100px;background:rgba(255,255,255,0.12);
+  display:inline-block;margin-bottom:6px;
+}
+.mat-card .mtitle{font-weight:800;font-size:0.88rem;line-height:1.3;}
+.mat-card .msub{font-size:0.72rem;opacity:0.65;margin-top:4px;}
+.mat-card::after{
+  content:'';position:absolute;bottom:-20px;right:-20px;
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(255,255,255,0.05);
+}
+.mc1{background:linear-gradient(135deg,#3D1A00,#6B2E00);}
+.mc2{background:linear-gradient(135deg,#0D2547,#1A3D6B);}
+.mc3{background:linear-gradient(135deg,#2D0A4E,#4A1580);}
+.mc4{background:linear-gradient(135deg,#063330,#0A5A54);}
+.mc-sumatif{
+  margin:12px 14px;border-radius:var(--r);
+  background:linear-gradient(135deg,#3D0820,#6B1035);
+  padding:18px;cursor:pointer;
+  display:flex;align-items:center;gap:16px;
+  border:1.5px solid rgba(255,133,161,0.3);
+  transition:transform 0.18s;
+}
+.mc-sumatif:active{transform:scale(0.97);}
+.mc-sumatif .sico{font-size:2.8rem;}
+.mc-sumatif .stxt .stitle{font-family:'Fredoka One',sans-serif;font-size:1.1rem;color:var(--pk);}
+.mc-sumatif .stxt .ssub{font-size:0.8rem;color:var(--mt);margin-top:3px;}
+
+/* ══════════════════════════════════════
+   MATERI SCREEN (shared)
+══════════════════════════════════════ */
+.mat-screen{display:none;}
+.mat-screen.active{display:block;}
+
+.mat-hero{
+  padding:22px 18px 18px;
+  position:relative;overflow:hidden;
+}
+.mat-hero-icon{font-size:3rem;margin-bottom:6px;display:block;}
+.mat-hero-title{font-family:'Fredoka One',sans-serif;font-size:1.5rem;line-height:1.2;}
+.mat-hero-sub{font-size:0.82rem;color:var(--mt);margin-top:4px;}
+
+/* mini tabs */
+.mini-tabs{
+  display:flex;gap:8px;overflow-x:auto;padding:8px 14px;
+  scrollbar-width:none;
+}
+.mini-tabs::-webkit-scrollbar{display:none;}
+.mtab{
+  flex-shrink:0;padding:7px 16px;border-radius:100px;border:1.5px solid rgba(255,255,255,0.12);
+  background:transparent;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;
+  color:var(--mt);cursor:pointer;transition:all 0.18s;white-space:nowrap;
+}
+.mtab.active{color:#fff;border-color:transparent;}
+
+/* content tabs */
+.tab-pane{display:none;padding:0 14px 10px;}
+.tab-pane.active{display:block;animation:fadeUp 0.3s ease both;}
+
+/* cards inside materi */
+.ic{
+  background:var(--cd);border-radius:var(--r);padding:18px;margin-bottom:14px;
+  border:1.5px solid rgba(255,255,255,0.06);
+}
+.ic-title{font-family:'Fredoka One',sans-serif;font-size:1rem;letter-spacing:0.02em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ic p{font-size:0.88rem;line-height:1.6;color:#C8C8E8;}
+
+.hbox{
+  border-radius:12px;padding:12px 14px;margin:10px 0;
+  font-size:0.85rem;line-height:1.5;
+}
+.hbox-or{background:rgba(255,107,53,0.12);border-left:3px solid var(--or);}
+.hbox-bl{background:rgba(77,159,255,0.12);border-left:3px solid var(--bl);}
+.hbox-pu{background:rgba(155,93,229,0.12);border-left:3px solid var(--pu);}
+.hbox-tl{background:rgba(6,201,215,0.12);border-left:3px solid var(--tl);}
+.hbox-ye{background:rgba(255,217,61,0.12);border-left:3px solid var(--ye);}
+
+.formula-box{
+  border-radius:14px;padding:16px;text-align:center;margin:12px 0;
+  color:#fff;
+}
+.formula-box .flabel{font-size:0.75rem;opacity:0.7;margin-bottom:4px;}
+.formula-box .fexpr{font-family:'Fredoka One',sans-serif;font-size:1.5rem;letter-spacing:0.04em;}
+.formula-box .fnote{font-size:0.75rem;opacity:0.65;margin-top:6px;}
+
+/* step list */
+.steps{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.step{display:flex;gap:12px;align-items:flex-start;}
+.snum{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;flex-shrink:0;}
+.sbody strong{display:block;font-size:0.88rem;}
+.sbody span{font-size:0.8rem;color:var(--mt);}
+
+/* example */
+.ex-card{
+  background:var(--cd2);border-radius:14px;padding:16px;margin:10px 0;
+  border:1.5px dashed rgba(255,255,255,0.1);
+}
+.ex-tag{font-size:0.72rem;font-weight:800;letter-spacing:0.06em;margin-bottom:8px;opacity:0.7;}
+.ex-line{font-size:0.85rem;color:#C8C8E8;margin:3px 0;}
+.ex-ans{font-size:0.95rem;font-weight:800;margin-top:8px;}
+
+/* shape mini grid */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+.sc{
+  background:var(--cd2);border-radius:14px;padding:14px 12px;text-align:center;
+  border:1.5px solid rgba(255,255,255,0.07);transition:transform 0.15s;
+}
+.sc:hover{transform:translateY(-2px);}
+.sc .sico{font-size:2rem;display:block;margin-bottom:6px;}
+.sc .sname{font-weight:800;font-size:0.82rem;margin-bottom:3px;}
+.sc .sform{font-size:0.73rem;color:var(--mt);}
+
+/* conversion table */
+.conv-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.8rem;}
+.conv-table th{padding:8px 10px;text-align:left;font-weight:800;border-bottom:1.5px solid rgba(255,255,255,0.1);}
+.conv-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.05);color:#C8C8E8;}
+.conv-table tr.highlight td{color:var(--ye);font-weight:800;}
+
+/* two col */
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+.colcard{background:var(--cd2);border-radius:12px;padding:12px;font-size:0.82rem;}
+.colcard h4{font-size:0.82rem;font-weight:800;margin-bottom:6px;}
+
+/* ── CALCULATOR ── */
+.calc-box{
+  background:var(--cd2);border-radius:var(--r);padding:18px;margin-bottom:14px;
+  border:1.5px solid rgba(255,255,255,0.07);
+}
+.shape-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.sbtn{
+  padding:6px 14px;border-radius:100px;border:1.5px solid rgba(255,255,255,0.15);
+  background:transparent;font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;
+  color:var(--mt);cursor:pointer;transition:all 0.18s;
+}
+.sbtn.active{color:#fff;border-color:transparent;}
+.inp-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.inp-lbl{font-size:0.8rem;font-weight:700;min-width:80px;color:var(--mt);}
+.inp-row input[type=range]{flex:1;accent-color:var(--pu);height:4px;}
+.inp-num{font-size:1rem;font-weight:800;color:var(--or);min-width:28px;text-align:right;}
+.unit-sel{margin:10px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.unit-sel label{font-size:0.8rem;font-weight:700;color:var(--mt);}
+.unit-sel select{
+  background:var(--cd);border:1.5px solid rgba(255,255,255,0.15);
+  color:var(--tx);border-radius:10px;padding:5px 10px;
+  font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:700;
+}
+.res-box{border-radius:14px;padding:16px;text-align:center;margin-top:8px;color:#fff;}
+.res-lbl{font-size:0.75rem;opacity:0.75;margin-bottom:3px;}
+.res-num{font-family:'Fredoka One',sans-serif;font-size:2rem;}
+.res-unit{font-size:0.82rem;opacity:0.75;}
+.res-formula{background:rgba(255,255,255,0.14);border-radius:8px;padding:5px 12px;margin-top:8px;font-size:0.88rem;font-weight:700;}
+
+/* viz */
+.viz-wrap{margin-top:14px;}
+.viz-label{font-size:0.78rem;font-weight:700;color:var(--mt);margin-bottom:8px;}
+.viz-tiles{display:flex;flex-wrap:wrap;gap:3px;min-height:40px;}
+.vtile{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;animation:popIn 0.2s cubic-bezier(.34,1.56,.64,1) both;}
+.viz-count{font-size:0.75rem;color:var(--mt);margin-top:6px;}
+
+/* ── LATIHAN ── */
+.soal-card{
+  background:var(--cd);border-radius:var(--r);padding:18px;margin-bottom:14px;
+  border:1.5px solid rgba(255,255,255,0.08);transition:border-color 0.2s;
+}
+.soal-card.ok{border-color:var(--gr);background:rgba(45,212,162,0.06);}
+.soal-card.err{border-color:var(--pk);background:rgba(255,133,161,0.06);}
+.soal-num{
+  display:inline-block;width:26px;height:26px;border-radius:50%;
+  text-align:center;line-height:26px;font-size:0.8rem;font-weight:800;
+  margin-bottom:8px;
+}
+.soal-q{font-size:0.9rem;font-weight:600;line-height:1.5;margin-bottom:12px;color:var(--tx);}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cbtn{
+  padding:10px 10px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.12);
+  background:var(--cd2);font-family:'Nunito',sans-serif;font-weight:700;font-size:0.84rem;
+  color:var(--tx);cursor:pointer;transition:all 0.18s;text-align:center;line-height:1.3;
+}
+.cbtn:active:not(:disabled){transform:scale(0.97);}
+.cbtn.ok{background:var(--gr);border-color:var(--gr);color:#fff;}
+.cbtn.err{background:var(--pk);border-color:var(--pk);color:#fff;}
+.cbtn.reveal{background:var(--gr);border-color:var(--gr);color:#fff;}
+.cbtn:disabled{cursor:default;}
+.fb{margin-top:10px;padding:8px 12px;border-radius:10px;font-size:0.82rem;font-weight:700;}
+.fb-ok{background:rgba(45,212,162,0.15);color:var(--gr);}
+.fb-err{background:rgba(255,133,161,0.15);color:var(--pk);}
+
+/* ══════════════════════════════════════
+   SUMATIF SCREEN
+══════════════════════════════════════ */
+#screen-sumatif{display:none;}
+#screen-sumatif.active{display:block;}
+
+.sum-start{padding:20px 16px;}
+.sum-hero{
+  background:linear-gradient(135deg,rgba(255,77,109,0.2),rgba(155,93,229,0.2));
+  border:1.5px solid rgba(255,133,161,0.25);
+  border-radius:var(--r);padding:24px;text-align:center;margin-bottom:20px;
+}
+.sum-trophy{font-size:4rem;display:block;margin-bottom:8px;animation:bounce 1.5s ease infinite alternate;}
+.sum-title{font-family:'Fredoka One',sans-serif;font-size:1.4rem;margin-bottom:6px;}
+.sum-desc{font-size:0.85rem;color:var(--mt);line-height:1.5;}
+.sum-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.sinfo{background:var(--cd);border-radius:14px;padding:14px 10px;text-align:center;border:1.5px solid rgba(255,255,255,0.07);}
+.sinfo .sinum{font-family:'Fredoka One',sans-serif;font-size:1.4rem;}
+.sinfo .sitxt{font-size:0.72rem;color:var(--mt);margin-top:3px;}
+.start-btn{
+  width:100%;padding:16px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;
+  cursor:pointer;transition:all 0.2s;box-shadow:0 6px 24px rgba(155,93,229,0.4);
+}
+.start-btn:active{transform:scale(0.98);}
+
+/* sumatif quiz */
+.sum-quiz{display:none;padding:0;}
+.sq-header{
+  background:var(--dk2);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  position:sticky;top:0;z-index:5;
+}
+.sq-progress{flex:1;background:rgba(255,255,255,0.08);border-radius:100px;height:8px;overflow:hidden;}
+.sq-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--pk),var(--pu));transition:width 0.3s;}
+.sq-info{display:flex;justify-content:space-between;align-items:center;padding:4px 16px 0;}
+.sq-qnum{font-size:0.8rem;font-weight:800;color:var(--mt);}
+.sq-score{background:rgba(255,217,61,0.15);border:1.5px solid rgba(255,217,61,0.3);color:var(--ye);font-size:0.8rem;font-weight:800;padding:3px 12px;border-radius:100px;}
+
+.sq-body{padding:16px;}
+.sq-cat{font-size:0.7rem;font-weight:800;letter-spacing:0.08em;padding:3px 10px;border-radius:100px;background:rgba(255,255,255,0.08);display:inline-block;margin-bottom:10px;color:var(--mt);}
+.sq-q{font-size:0.95rem;font-weight:700;line-height:1.5;margin-bottom:14px;color:var(--tx);}
+.sq-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.sq-opt{
+  padding:12px 12px;border-radius:14px;border:1.5px solid rgba(255,255,255,0.12);
+  background:var(--cd);font-family:'Nunito',sans-serif;font-weight:700;font-size:0.88rem;
+  color:var(--tx);cursor:pointer;transition:all 0.18s;text-align:center;line-height:1.3;
+}
+.sq-opt:active:not(:disabled){transform:scale(0.97);}
+.sq-opt.kor{background:var(--gr);border-color:var(--gr);color:#fff;}
+.sq-opt.sal{background:var(--pk);border-color:var(--pk);color:#fff;}
+.sq-opt.rv{background:var(--gr);border-color:var(--gr);color:#fff;}
+.sq-opt:disabled{cursor:default;}
+.sq-fb{padding:10px 14px;border-radius:12px;font-size:0.85rem;font-weight:700;margin-bottom:10px;display:none;}
+.sq-fb.ok{background:rgba(45,212,162,0.15);color:var(--gr);}
+.sq-fb.err{background:rgba(255,133,161,0.15);color:var(--pk);}
+.sq-next{
+  width:100%;padding:14px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--bl),var(--tl));
+  color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.sq-next:disabled{opacity:0.3;cursor:default;}
+.sq-next:active:not(:disabled){transform:scale(0.98);}
+
+/* HASIL SUMATIF */
+.sum-hasil{display:none;padding:20px 16px;}
+.hasil-hero{
+  background:linear-gradient(135deg,rgba(255,77,109,0.15),rgba(155,93,229,0.15));
+  border:1.5px solid rgba(255,133,161,0.2);
+  border-radius:var(--r);padding:28px 20px;text-align:center;margin-bottom:18px;
+}
+.htrophy{font-size:5rem;display:block;animation:bounce 1.5s ease infinite alternate;margin-bottom:8px;}
+.htitle{font-family:'Fredoka One',sans-serif;font-size:1.6rem;margin-bottom:6px;}
+.hgrade{
+  font-family:'Fredoka One',sans-serif;font-size:3.5rem;
+  margin:8px 0 4px;
+}
+.hpct{font-size:0.9rem;color:var(--mt);}
+
+.analisis-title{font-family:'Fredoka One',sans-serif;font-size:1rem;letter-spacing:0.02em;margin-bottom:10px;color:var(--mt);}
+.analisis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.acard{background:var(--cd);border-radius:14px;padding:14px;border:1.5px solid rgba(255,255,255,0.07);}
+.acard-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.acard-ico{font-size:1.3rem;}
+.acard-title{font-size:0.8rem;font-weight:800;line-height:1.2;}
+.acard-score{font-family:'Fredoka One',sans-serif;font-size:1.3rem;}
+.acard-sub{font-size:0.72rem;color:var(--mt);margin-top:2px;}
+.acard-bar{background:rgba(255,255,255,0.08);border-radius:100px;height:5px;margin-top:8px;overflow:hidden;}
+.acard-fill{height:100%;border-radius:100px;transition:width 0.6s ease;}
+
+.predikat-box{
+  background:var(--cd);border-radius:var(--r);padding:18px;
+  text-align:center;margin-bottom:14px;
+  border:1.5px solid rgba(255,255,255,0.07);
+}
+.pred-label{font-size:0.8rem;color:var(--mt);margin-bottom:6px;}
+.pred-text{font-family:'Fredoka One',sans-serif;font-size:1.3rem;letter-spacing:0.05em;}
+.pred-msg{font-size:0.82rem;color:var(--mt);margin-top:6px;line-height:1.5;}
+.pred-remedi{display:none;background:rgba(255,217,61,0.1);border:1.5px solid rgba(255,217,61,0.3);border-radius:12px;padding:12px;margin-top:10px;}
+.pred-remedi p{font-size:0.82rem;color:var(--ye);}
+
+.ulangi-btn{
+  width:100%;padding:15px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--pk),var(--pu));
+  color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.95rem;
+  cursor:pointer;transition:all 0.2s;margin-bottom:12px;
+}
+.ulangi-btn:active{transform:scale(0.98);}
+.back-home-btn{
+  width:100%;padding:14px;border-radius:var(--r);border:1.5px solid rgba(255,255,255,0.15);
+  background:transparent;color:var(--mt);font-family:'Nunito',sans-serif;font-weight:700;font-size:0.88rem;
+  cursor:pointer;
+}
+
+/* ══════════════════════════════════════
+   UTILITY
+══════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-14px);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar" id="topbar">
+  <button class="topbar-back" id="backBtn" onclick="goBack()">←</button>
+  <div class="topbar-title" id="topbarTitle">Matematik<span>Aku</span></div>
+  <div class="topbar-badge" id="topbarBadge">Kelas 4</div>
+</div>
+
+<!-- SCROLL WRAPPER -->
+<div class="screen" id="mainScreen">
+
+<!-- ══════════ HOME ══════════ -->
+<div id="screen-home">
+  <div class="home-hero">
+    <div class="hero-label">📱 Media Pembelajaran Digital</div>
+    <div class="hero-title">Ayo Belajar <span>Satuan Baku, Satuan Tidak Baku, Luas & Volume Bangun Ruang</span><br></div>
+    <div class="hero-sub">SD Kelas 4 + Penilaian Sumatif</div>
+    <div class="hero-stars">🔢</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="homeProgress" style="width:0%"></div>
+    </div>
+    <div class="progress-text" id="homeProgressTxt">Belum ada progress</div>
+  </div>
+
+  <div class="section-label">📚 Pilih Materi</div>
+  <div class="materi-grid">
+    <div class="mat-card mc1" onclick="openMateri(1)">
+      <span class="mico">📏</span>
+      <div class="mnum" style="color:#FF9A5C">MATERI 1</div>
+      <div class="mtitle">Luas Bangun Datar</div>
+      <div class="msub">Satuan Tidak Baku</div>
+    </div>
+    <div class="mat-card mc2" onclick="openMateri(2)">
+      <span class="mico">📐</span>
+      <div class="mnum" style="color:#7EC8FF">MATERI 2</div>
+      <div class="mtitle">Luas Bangun Datar</div>
+      <div class="msub">Satuan Baku (cm², m²)</div>
+    </div>
+    <div class="mat-card mc3" onclick="openMateri(3)">
+      <span class="mico">📦</span>
+      <div class="mnum" style="color:#C4A0F5">MATERI 3</div>
+      <div class="mtitle">Volume Bangun Ruang</div>
+      <div class="msub">Satuan Tidak Baku</div>
+    </div>
+    <div class="mat-card mc4" onclick="openMateri(4)">
+      <span class="mico">🔢</span>
+      <div class="mnum" style="color:#5EECD9">MATERI 4</div>
+      <div class="mtitle">Volume Bangun Ruang</div>
+      <div class="msub">Satuan Baku (cm³, m³)</div>
+    </div>
+  </div>
+
+  <div class="mc-sumatif" onclick="openSumatif()">
+    <div class="sico">📝</div>
+    <div class="stxt">
+      <div class="stitle">Penilaian Sumatif</div>
+      <div class="ssub">25 soal · Semua materi · Ada nilai & analisis</div>
+    </div>
+    <div style="color:var(--pk);font-size:1.3rem;margin-left:auto">→</div>
+  </div>
+  <div style="height:10px"></div>
+</div><!-- /home -->
+
+<!-- ══════════ MATERI 1: LUAS TIDAK BAKU ══════════ -->
+<div id="screen-m1" class="mat-screen">
+  <div class="mat-hero" style="background:linear-gradient(160deg,#3D1A00,#6B2E00)">
+    <span class="mat-hero-icon">📏</span>
+    <div class="mat-hero-title">Luas Satuan Tidak Baku</div>
+    <div class="mat-hero-sub">Mengukur luas dengan benda sehari-hari</div>
+  </div>
+  <div class="mini-tabs" id="tabs-m1">
+    <button class="mtab active" style="--ac:var(--or)" onclick="switchTab('m1','t1a',this)">📖 Pengantar</button>
+    <button class="mtab" onclick="switchTab('m1','t1b',this)">💡 Cara Ukur</button>
+    <button class="mtab" onclick="switchTab('m1','t1c',this)">🎛️ Kalkulator</button>
+    <button class="mtab" onclick="switchTab('m1','t1d',this)">✏️ Latihan</button>
+  </div>
+
+  <!-- Pengantar -->
+  <div class="tab-pane active" id="m1-t1a">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--or)">📏 Apa itu Satuan Tidak Baku?</div>
+      <p>Satuan tidak baku adalah alat ukur yang <strong>belum disepakati bersama</strong>. Kita bisa pakai benda apa saja asal ukurannya <strong>sama semua</strong>!</p>
+      <div class="hbox hbox-or" style="margin-top:10px">🔑 Luas = ukuran permukaan suatu bangun datar. Dengan satuan tidak baku, kita hitung <strong>berapa banyak benda kecil yang menutupi permukaannya</strong>.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--or)">🌟 Contoh Satuan Tidak Baku</div>
+      <div class="sg">
+        <div class="sc"><span class="sico">⬛</span><div class="sname">Petak Kotak</div><div class="sform">Kertas berpetak</div></div>
+        <div class="sc"><span class="sico">🪙</span><div class="sname">Uang Logam</div><div class="sform">Koin sama besar</div></div>
+        <div class="sc"><span class="sico">🃏</span><div class="sname">Kartu</div><div class="sform">Kartu flash/remi</div></div>
+        <div class="sc"><span class="sico">🍃</span><div class="sname">Daun</div><div class="sform">Daun sama besar</div></div>
+      </div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--or)">⚖️ Kelebihan & Kelemahan</div>
+      <div class="twocol">
+        <div class="colcard"><h4 style="color:var(--gr)">✅ Kelebihan</h4><span style="color:var(--mt);font-size:0.8rem">Mudah dipakai, benda ada di sekitar kita</span></div>
+        <div class="colcard"><h4 style="color:var(--pk)">❌ Kelemahan</h4><span style="color:var(--mt);font-size:0.8rem">Hasilnya berbeda antar orang, tidak universal</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cara Ukur -->
+  <div class="tab-pane" id="m1-t1b">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--or)">📐 Cara Mengukur Luas</div>
+      <div class="formula-box" style="background:linear-gradient(135deg,#6B2E00,#3D1A00)">
+        <div class="flabel">Rumus Dasar</div>
+        <div class="fexpr">Luas = p × l</div>
+        <div class="fnote">p = panjang (dalam satuan), l = lebar (dalam satuan)</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="snum" style="background:var(--or);color:#fff">1</div><div class="sbody"><strong>Pilih satuan yang sama</strong><span>Pastikan semua benda sama besar</span></div></div>
+        <div class="step"><div class="snum" style="background:var(--bl);color:#fff">2</div><div class="sbody"><strong>Susun menutupi permukaan</strong><span>Rapat, tidak tumpang tindih, tidak berlubang</span></div></div>
+        <div class="step"><div class="snum" style="background:var(--gr);color:#fff">3</div><div class="sbody"><strong>Hitung banyak satuan</strong><span>Atau: hitung baris × kolom</span></div></div>
+      </div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--or)">📝 Contoh Soal</div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--or)">▬ PERSEGI PANJANG</div>
+        <div class="ex-line">Meja: 6 kartu ke kanan × 4 kartu ke bawah</div>
+        <div class="ex-line">Luas = 6 × 4</div>
+        <div class="ex-ans" style="color:var(--or)">= 24 kartu satuan</div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--or)">🔺 SEGITIGA</div>
+        <div class="ex-line">Alas = 8 petak, tinggi = 6 petak</div>
+        <div class="ex-line">Luas = ½ × 8 × 6</div>
+        <div class="ex-ans" style="color:var(--or)">= 24 petak satuan</div>
+      </div>
+      <div class="hbox hbox-ye">⚠️ Satuan harus <strong>sama besar</strong> dan <strong>menutupi seluruh permukaan</strong> tanpa celah!</div>
+    </div>
+  </div>
+
+  <!-- Kalkulator M1 -->
+  <div class="tab-pane" id="m1-t1c">
+    <div class="calc-box">
+      <div class="shape-btns">
+        <button class="sbtn active" style="background:var(--or);border-color:var(--or);color:#fff" onclick="setM1Shape('ppj',this)">▬ Persegi Panjang</button>
+        <button class="sbtn" onclick="setM1Shape('persegi',this)">⬛ Persegi</button>
+        <button class="sbtn" onclick="setM1Shape('segitiga',this)">🔺 Segitiga</button>
+      </div>
+      <div class="inp-row"><span class="inp-lbl">↔ Panjang</span><input type="range" id="m1p" min="1" max="12" value="6" oninput="calcM1()"><span class="inp-num" id="m1pv">6</span></div>
+      <div class="inp-row" id="m1row-l"><span class="inp-lbl">↕ Lebar</span><input type="range" id="m1l" min="1" max="12" value="4" oninput="calcM1()"><span class="inp-num" id="m1lv">4</span></div>
+      <div class="inp-row" id="m1row-t" style="display:none"><span class="inp-lbl">📏 Tinggi</span><input type="range" id="m1t" min="1" max="12" value="4" oninput="calcM1()"><span class="inp-num" id="m1tv">4</span></div>
+      <div class="unit-sel"><label>📏 Satuan:</label>
+        <select id="m1unit" onchange="calcM1()">
+          <option>petak kotak</option><option>kartu</option><option>uang logam</option><option>lembar daun</option>
+        </select>
+      </div>
+      <div class="res-box" style="background:linear-gradient(135deg,#FF6B35,#FF8C5A)">
+        <div class="res-lbl">Luas Bangun</div>
+        <div class="res-num" id="m1res">24</div>
+        <div class="res-unit" id="m1unit-d">petak kotak</div>
+        <div class="res-formula" id="m1formula">6 × 4 = 24</div>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-label">🔲 Visualisasi Satuan:</div>
+        <div class="viz-tiles" id="m1viz"></div>
+        <div class="viz-count" id="m1vizcnt"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latihan M1 -->
+  <div class="tab-pane" id="m1-t1d">
+    <div class="soal-card" id="s1-1">
+      <span class="soal-num" style="background:var(--or)">1</span>
+      <div class="soal-q">📄 Meja ditutup kartu: 5 baris × 4 kolom. Berapa luas meja?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s1-1',false,'f1-1')">18 kartu</button>
+        <button class="cbtn" onclick="jwb(this,'s1-1',true,'f1-1')">20 kartu</button>
+        <button class="cbtn" onclick="jwb(this,'s1-1',false,'f1-1')">9 kartu</button>
+        <button class="cbtn" onclick="jwb(this,'s1-1',false,'f1-1')">16 kartu</button>
+      </div>
+      <div class="fb" id="f1-1" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s1-2">
+      <span class="soal-num" style="background:var(--or)">2</span>
+      <div class="soal-q">⬛ Buku persegi ditutup uang logam. Sisi = 7 uang logam. Luasnya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s1-2',false,'f1-2')">14 uang</button>
+        <button class="cbtn" onclick="jwb(this,'s1-2',false,'f1-2')">28 uang</button>
+        <button class="cbtn" onclick="jwb(this,'s1-2',true,'f1-2')">49 uang</button>
+        <button class="cbtn" onclick="jwb(this,'s1-2',false,'f1-2')">42 uang</button>
+      </div>
+      <div class="fb" id="f1-2" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s1-3">
+      <span class="soal-num" style="background:var(--or)">3</span>
+      <div class="soal-q">🔺 Segitiga: alas = 10 petak, tinggi = 6 petak. Berapa luas?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s1-3',false,'f1-3')">60 petak</button>
+        <button class="cbtn" onclick="jwb(this,'s1-3',true,'f1-3')">30 petak</button>
+        <button class="cbtn" onclick="jwb(this,'s1-3',false,'f1-3')">16 petak</button>
+        <button class="cbtn" onclick="jwb(this,'s1-3',false,'f1-3')">40 petak</button>
+      </div>
+      <div class="fb" id="f1-3" style="display:none"></div>
+    </div>
+  </div>
+</div><!-- /m1 -->
+
+<!-- ══════════ MATERI 2: LUAS SATUAN BAKU ══════════ -->
+<div id="screen-m2" class="mat-screen">
+  <div class="mat-hero" style="background:linear-gradient(160deg,#0D2547,#1A3D6B)">
+    <span class="mat-hero-icon">📐</span>
+    <div class="mat-hero-title">Luas Satuan Baku</div>
+    <div class="mat-hero-sub">cm², m², dan konversi satuan luas</div>
+  </div>
+  <div class="mini-tabs" id="tabs-m2">
+    <button class="mtab active" onclick="switchTab('m2','t2a',this)">📖 Pengantar</button>
+    <button class="mtab" onclick="switchTab('m2','t2b',this)">📐 Rumus</button>
+    <button class="mtab" onclick="switchTab('m2','t2c',this)">🎛️ Kalkulator</button>
+    <button class="mtab" onclick="switchTab('m2','t2d',this)">✏️ Latihan</button>
+  </div>
+
+  <div class="tab-pane active" id="m2-t2a">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--bl)">🌍 Satuan Baku Luas</div>
+      <p>Satuan baku luas disepakati seluruh dunia agar pengukuran bisa dikomunikasikan dengan jelas. Satuan utamanya adalah <strong>m²</strong> (meter persegi).</p>
+      <div class="hbox hbox-bl">1 m² = 10.000 cm² &nbsp;|&nbsp; 1 cm² = 100 mm²</div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--bl)">📊 Tangga Satuan Luas</div>
+      <table class="conv-table">
+        <tr><th>Satuan</th><th>Simbol</th><th>Nilai</th></tr>
+        <tr><td>km persegi</td><td>km²</td><td>1.000.000 m²</td></tr>
+        <tr><td>hektare</td><td>ha</td><td>10.000 m²</td></tr>
+        <tr class="highlight"><td><strong>meter persegi</strong></td><td><strong>m²</strong></td><td><strong>satuan pokok</strong></td></tr>
+        <tr><td>dm persegi</td><td>dm²</td><td>0,01 m²</td></tr>
+        <tr><td>cm persegi</td><td>cm²</td><td>0,0001 m²</td></tr>
+        <tr><td>mm persegi</td><td>mm²</td><td>0,000001 m²</td></tr>
+      </table>
+      <div class="hbox hbox-ye">⬆️ Naik 1 tangga → ÷100 &nbsp;|&nbsp; Turun 1 tangga → ×100</div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--bl)">🔄 Contoh Konversi</div>
+      <div class="ex-card">
+        <div class="ex-line">5 m² = 5 × 10.000 = <strong style="color:var(--bl)">50.000 cm²</strong></div>
+        <div class="ex-line">300 cm² = 300 ÷ 10.000 = <strong style="color:var(--bl)">0,03 m²</strong></div>
+        <div class="ex-line">2 ha = 2 × 10.000 = <strong style="color:var(--bl)">20.000 m²</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m2-t2b">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--bl)">📐 Rumus Luas Bangun Datar</div>
+      <div class="sg">
+        <div class="sc"><span class="sico">⬛</span><div class="sname">Persegi</div><div class="sform">L = s × s</div></div>
+        <div class="sc"><span class="sico">▬</span><div class="sname">Persegi Panjang</div><div class="sform">L = p × l</div></div>
+        <div class="sc"><span class="sico">🔺</span><div class="sname">Segitiga</div><div class="sform">L = ½ × a × t</div></div>
+        <div class="sc"><span class="sico">⬟</span><div class="sname">Jajar Genjang</div><div class="sform">L = a × t</div></div>
+        <div class="sc"><span class="sico">💠</span><div class="sname">Layang-layang</div><div class="sform">L = ½ × d₁ × d₂</div></div>
+        <div class="sc"><span class="sico">⭕</span><div class="sname">Lingkaran</div><div class="sform">L = π × r²</div></div>
+      </div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--bl)">📝 Contoh Soal</div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--bl)">▬ PERSEGI PANJANG</div>
+        <div class="ex-line">p = 12 m, l = 7 m</div>
+        <div class="ex-line">L = 12 × 7</div>
+        <div class="ex-ans" style="color:var(--bl)">= 84 m²</div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--bl)">⭕ LINGKARAN</div>
+        <div class="ex-line">r = 7 cm, π = 22/7</div>
+        <div class="ex-line">L = 22/7 × 7 × 7</div>
+        <div class="ex-ans" style="color:var(--bl)">= 154 cm²</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m2-t2c">
+    <div class="calc-box">
+      <div class="shape-btns">
+        <button class="sbtn active" style="background:var(--bl);border-color:var(--bl);color:#fff" onclick="setM2Shape('ppj',this)">▬ P.Panjang</button>
+        <button class="sbtn" onclick="setM2Shape('persegi',this)">⬛ Persegi</button>
+        <button class="sbtn" onclick="setM2Shape('segitiga',this)">🔺 Segitiga</button>
+        <button class="sbtn" onclick="setM2Shape('lingkaran',this)">⭕ Lingkaran</button>
+      </div>
+      <div class="inp-row"><span class="inp-lbl">↔ Panjang</span><input type="range" id="m2p" min="1" max="30" value="10" oninput="calcM2()"><span class="inp-num" id="m2pv">10</span></div>
+      <div class="inp-row" id="m2row-l"><span class="inp-lbl">↕ Lebar</span><input type="range" id="m2l" min="1" max="30" value="6" oninput="calcM2()"><span class="inp-num" id="m2lv">6</span></div>
+      <div class="inp-row" id="m2row-t" style="display:none"><span class="inp-lbl">📏 Tinggi</span><input type="range" id="m2t" min="1" max="30" value="6" oninput="calcM2()"><span class="inp-num" id="m2tv">6</span></div>
+      <div class="inp-row" id="m2row-r" style="display:none"><span class="inp-lbl">⭕ Jari-jari</span><input type="range" id="m2r" min="1" max="20" value="7" oninput="calcM2()"><span class="inp-num" id="m2rv">7</span></div>
+      <div class="unit-sel"><label>📏 Satuan:</label>
+        <select id="m2unit" onchange="calcM2()"><option>cm²</option><option>m²</option><option>dm²</option><option>mm²</option></select>
+      </div>
+      <div class="res-box" style="background:linear-gradient(135deg,#1A3D6B,#0D2547)">
+        <div class="res-lbl">Luas Bangun</div>
+        <div class="res-num" id="m2res">60</div>
+        <div class="res-unit" id="m2unit-d">cm²</div>
+        <div class="res-formula" id="m2formula">10 × 6 = 60 cm²</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m2-t2d">
+    <div class="soal-card" id="s2-1">
+      <span class="soal-num" style="background:var(--bl)">1</span>
+      <div class="soal-q">▬ Taman: panjang 15 m, lebar 8 m. Berapa luasnya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s2-1',false,'f2-1')">92 m²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-1',true,'f2-1')">120 m²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-1',false,'f2-1')">46 m²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-1',false,'f2-1')">105 m²</button>
+      </div>
+      <div class="fb" id="f2-1" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s2-2">
+      <span class="soal-num" style="background:var(--bl)">2</span>
+      <div class="soal-q">🔺 Segitiga: alas 10 cm, tinggi 12 cm. Berapa luasnya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s2-2',false,'f2-2')">120 cm²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-2',true,'f2-2')">60 cm²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-2',false,'f2-2')">44 cm²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-2',false,'f2-2')">30 cm²</button>
+      </div>
+      <div class="fb" id="f2-2" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s2-3">
+      <span class="soal-num" style="background:var(--bl)">3</span>
+      <div class="soal-q">🔄 5 m² = ... cm²</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s2-3',false,'f2-3')">500 cm²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-3',false,'f2-3')">5.000 cm²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-3',true,'f2-3')">50.000 cm²</button>
+        <button class="cbtn" onclick="jwb(this,'s2-3',false,'f2-3')">500.000 cm²</button>
+      </div>
+      <div class="fb" id="f2-3" style="display:none"></div>
+    </div>
+  </div>
+</div><!-- /m2 -->
+
+<!-- ══════════ MATERI 3: VOLUME TIDAK BAKU ══════════ -->
+<div id="screen-m3" class="mat-screen">
+  <div class="mat-hero" style="background:linear-gradient(160deg,#2D0A4E,#4A1580)">
+    <span class="mat-hero-icon">📦</span>
+    <div class="mat-hero-title">Volume Satuan Tidak Baku</div>
+    <div class="mat-hero-sub">Mengisi bangun ruang dengan benda nyata</div>
+  </div>
+  <div class="mini-tabs" id="tabs-m3">
+    <button class="mtab active" onclick="switchTab('m3','t3a',this)">📖 Pengantar</button>
+    <button class="mtab" onclick="switchTab('m3','t3b',this)">💡 Konsep</button>
+    <button class="mtab" onclick="switchTab('m3','t3c',this)">🎛️ Kalkulator</button>
+    <button class="mtab" onclick="switchTab('m3','t3d',this)">✏️ Latihan</button>
+  </div>
+
+  <div class="tab-pane active" id="m3-t3a">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--pu)">📦 Apa itu Volume?</div>
+      <p>Volume adalah <strong>banyak ruang</strong> yang ditempati suatu benda 3 dimensi. Dengan satuan tidak baku, kita hitung berapa banyak benda kecil yang bisa <strong>mengisi penuh</strong> bangun ruang itu.</p>
+      <div class="hbox hbox-pu">🎲 Contoh: Sebuah kotak diisi kubus kecil. Ternyata muat 24 kubus. Maka volume kotak = 24 kubus satuan.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--pu)">🎲 Satuan Tidak Baku untuk Volume</div>
+      <div class="sg">
+        <div class="sc" style="border-color:rgba(155,93,229,0.3)"><span class="sico">🎲</span><div class="sname">Kubus Satuan</div><div class="sform">Kubus kecil sama besar</div></div>
+        <div class="sc" style="border-color:rgba(155,93,229,0.3)"><span class="sico">📦</span><div class="sname">Kotak Korek</div><div class="sform">Kotak korek api</div></div>
+        <div class="sc" style="border-color:rgba(155,93,229,0.3)"><span class="sico">🧱</span><div class="sname">Batu Bata</div><div class="sform">Bata ukuran sama</div></div>
+        <div class="sc" style="border-color:rgba(155,93,229,0.3)"><span class="sico">🔲</span><div class="sname">Balok Mainan</div><div class="sform">Blok bangunan</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m3-t3b">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--pu)">💡 Cara Menghitung Volume</div>
+      <div class="formula-box" style="background:linear-gradient(135deg,#4A1580,#2D0A4E)">
+        <div class="flabel">Kubus: V = s³ &nbsp;|&nbsp; Balok: V = p × l × t</div>
+        <div class="fexpr">V = p × l × t</div>
+        <div class="fnote">Atau: isi 1 lapisan × jumlah lapisan (tinggi)</div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="snum" style="background:var(--pu)">1</div><div class="sbody"><strong>Pilih satuan sama besar</strong><span>Kubus kecil, kotak korek, dsb</span></div></div>
+        <div class="step"><div class="snum" style="background:var(--bl)">2</div><div class="sbody"><strong>Isi bangun ruang penuh</strong><span>Susun rapat, tidak ada celah</span></div></div>
+        <div class="step"><div class="snum" style="background:var(--gr)">3</div><div class="sbody"><strong>Hitung total satuan</strong><span>= volume bangun ruang itu</span></div></div>
+      </div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--pu)">📝 Contoh</div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--pu)">📦 KUBUS – rusuk 4 satuan</div>
+        <div class="ex-line">V = 4 × 4 × 4</div>
+        <div class="ex-ans" style="color:var(--pu)">= 64 kubus satuan</div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--pu)">🟫 BALOK – p=5, l=3, t=2</div>
+        <div class="ex-line">V = 5 × 3 × 2</div>
+        <div class="ex-ans" style="color:var(--pu)">= 30 kubus satuan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m3-t3c">
+    <div class="calc-box">
+      <div class="shape-btns">
+        <button class="sbtn active" style="background:var(--pu);border-color:var(--pu);color:#fff" onclick="setM3Shape('kubus',this)">📦 Kubus</button>
+        <button class="sbtn" onclick="setM3Shape('balok',this)">🟫 Balok</button>
+      </div>
+      <div class="inp-row"><span class="inp-lbl">↔ Panjang/s</span><input type="range" id="m3p" min="1" max="8" value="4" oninput="calcM3()"><span class="inp-num" id="m3pv">4</span></div>
+      <div class="inp-row" id="m3row-l" style="display:none"><span class="inp-lbl">↕ Lebar</span><input type="range" id="m3l" min="1" max="8" value="3" oninput="calcM3()"><span class="inp-num" id="m3lv">3</span></div>
+      <div class="inp-row" id="m3row-t" style="display:none"><span class="inp-lbl">🔼 Tinggi</span><input type="range" id="m3t" min="1" max="8" value="2" oninput="calcM3()"><span class="inp-num" id="m3tv">2</span></div>
+      <div class="unit-sel"><label>📏 Satuan:</label>
+        <select id="m3unit" onchange="calcM3()"><option>kubus satuan</option><option>kotak korek api</option><option>balok mainan</option><option>batu bata</option></select>
+      </div>
+      <div class="res-box" style="background:linear-gradient(135deg,#9B5DE5,#7B2FBE)">
+        <div class="res-lbl">Volume Bangun</div>
+        <div class="res-num" id="m3res">64</div>
+        <div class="res-unit" id="m3unit-d">kubus satuan</div>
+        <div class="res-formula" id="m3formula">4 × 4 × 4 = 64</div>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-label">🎲 Visualisasi Kubus Satuan:</div>
+        <div class="viz-tiles" id="m3viz"></div>
+        <div class="viz-count" id="m3vizcnt"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m3-t3d">
+    <div class="soal-card" id="s3-1">
+      <span class="soal-num" style="background:var(--pu)">1</span>
+      <div class="soal-q">📦 Kubus dengan rusuk 3 satuan. Berapa volumenya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s3-1',false,'f3-1')">9 satuan</button>
+        <button class="cbtn" onclick="jwb(this,'s3-1',true,'f3-1')">27 satuan</button>
+        <button class="cbtn" onclick="jwb(this,'s3-1',false,'f3-1')">18 satuan</button>
+        <button class="cbtn" onclick="jwb(this,'s3-1',false,'f3-1')">36 satuan</button>
+      </div>
+      <div class="fb" id="f3-1" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s3-2">
+      <span class="soal-num" style="background:var(--pu)">2</span>
+      <div class="soal-q">🟫 Balok: p=5, l=4, t=3 kotak korek. Berapa volumenya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s3-2',false,'f3-2')">40 kotak</button>
+        <button class="cbtn" onclick="jwb(this,'s3-2',false,'f3-2')">45 kotak</button>
+        <button class="cbtn" onclick="jwb(this,'s3-2',true,'f3-2')">60 kotak</button>
+        <button class="cbtn" onclick="jwb(this,'s3-2',false,'f3-2')">50 kotak</button>
+      </div>
+      <div class="fb" id="f3-2" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s3-3">
+      <span class="soal-num" style="background:var(--pu)">3</span>
+      <div class="soal-q">🎁 Kotak diisi 4 lapisan, tiap lapisan = 15 kubus. Berapa total volume?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s3-3',false,'f3-3')">19 kubus</button>
+        <button class="cbtn" onclick="jwb(this,'s3-3',false,'f3-3')">45 kubus</button>
+        <button class="cbtn" onclick="jwb(this,'s3-3',true,'f3-3')">60 kubus</button>
+        <button class="cbtn" onclick="jwb(this,'s3-3',false,'f3-3')">75 kubus</button>
+      </div>
+      <div class="fb" id="f3-3" style="display:none"></div>
+    </div>
+  </div>
+</div><!-- /m3 -->
+
+<!-- ══════════ MATERI 4: VOLUME SATUAN BAKU ══════════ -->
+<div id="screen-m4" class="mat-screen">
+  <div class="mat-hero" style="background:linear-gradient(160deg,#063330,#0A5A54)">
+    <span class="mat-hero-icon">🔢</span>
+    <div class="mat-hero-title">Volume Satuan Baku</div>
+    <div class="mat-hero-sub">cm³, m³, konversi & rumus bangun ruang</div>
+  </div>
+  <div class="mini-tabs" id="tabs-m4">
+    <button class="mtab active" onclick="switchTab('m4','t4a',this)">📖 Pengantar</button>
+    <button class="mtab" onclick="switchTab('m4','t4b',this)">📐 Rumus</button>
+    <button class="mtab" onclick="switchTab('m4','t4c',this)">🎛️ Kalkulator</button>
+    <button class="mtab" onclick="switchTab('m4','t4d',this)">✏️ Latihan</button>
+  </div>
+
+  <div class="tab-pane active" id="m4-t4a">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--tl)">🌍 Satuan Baku Volume</div>
+      <p>Satuan baku volume adalah satuan yang disepakati internasional. Satuan pokok volume = <strong>m³</strong> (meter kubik).</p>
+      <div class="hbox hbox-tl">1 m³ = 1.000.000 cm³ &nbsp;|&nbsp; 1 dm³ = 1 liter = 1.000 cm³</div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--tl)">📊 Tangga Satuan Volume</div>
+      <table class="conv-table">
+        <tr><th>Satuan</th><th>Simbol</th><th>Nilai</th></tr>
+        <tr><td>km kubik</td><td>km³</td><td>1.000.000.000 m³</td></tr>
+        <tr class="highlight"><td><strong>meter kubik</strong></td><td><strong>m³</strong></td><td><strong>satuan pokok</strong></td></tr>
+        <tr><td>dm kubik</td><td>dm³</td><td>0,001 m³</td></tr>
+        <tr><td>cm kubik</td><td>cm³</td><td>0,000001 m³</td></tr>
+        <tr><td>mm kubik</td><td>mm³</td><td>0,000000001 m³</td></tr>
+      </table>
+      <div class="hbox hbox-ye">⬆️ Naik 1 tangga → ÷1.000 &nbsp;|&nbsp; ⬇️ Turun 1 tangga → ×1.000</div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--tl)">🔄 Contoh Konversi</div>
+      <div class="ex-card">
+        <div class="ex-line">3 m³ = 3 × 1.000.000 = <strong style="color:var(--tl)">3.000.000 cm³</strong></div>
+        <div class="ex-line">2 dm³ = 2 × 1.000 = <strong style="color:var(--tl)">2.000 cm³</strong></div>
+        <div class="ex-line">5.000 cm³ = 5.000÷1.000.000 = <strong style="color:var(--tl)">0,005 m³</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m4-t4b">
+    <div class="ic">
+      <div class="ic-title" style="color:var(--tl)">📐 Rumus Volume Bangun Ruang</div>
+      <div class="sg">
+        <div class="sc" style="border-color:rgba(6,201,215,0.3)"><span class="sico">📦</span><div class="sname">Kubus</div><div class="sform">V = s³</div></div>
+        <div class="sc" style="border-color:rgba(6,201,215,0.3)"><span class="sico">🟫</span><div class="sname">Balok</div><div class="sform">V = p × l × t</div></div>
+        <div class="sc" style="border-color:rgba(6,201,215,0.3)"><span class="sico">🥫</span><div class="sname">Tabung</div><div class="sform">V = π × r² × t</div></div>
+        <div class="sc" style="border-color:rgba(6,201,215,0.3)"><span class="sico">🔺</span><div class="sname">Kerucut</div><div class="sform">V = ⅓πr²t</div></div>
+        <div class="sc" style="border-color:rgba(6,201,215,0.3)"><span class="sico">🔴</span><div class="sname">Bola</div><div class="sform">V = 4/3 π r³</div></div>
+        <div class="sc" style="border-color:rgba(6,201,215,0.3)"><span class="sico">🔶</span><div class="sname">Limas</div><div class="sform">V = ⅓ × La × t</div></div>
+      </div>
+    </div>
+    <div class="ic">
+      <div class="ic-title" style="color:var(--tl)">📝 Contoh Soal</div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--tl)">📦 KUBUS – s=6 cm</div>
+        <div class="ex-line">V = 6 × 6 × 6</div>
+        <div class="ex-ans" style="color:var(--tl)">= 216 cm³</div>
+      </div>
+      <div class="ex-card">
+        <div class="ex-tag" style="color:var(--tl)">🥫 TABUNG – r=7, t=10 cm</div>
+        <div class="ex-line">V = 22/7 × 7² × 10</div>
+        <div class="ex-ans" style="color:var(--tl)">= 1.540 cm³</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m4-t4c">
+    <div class="calc-box">
+      <div class="shape-btns">
+        <button class="sbtn active" style="background:var(--tl);border-color:var(--tl);color:#fff" onclick="setM4Shape('kubus',this)">📦 Kubus</button>
+        <button class="sbtn" onclick="setM4Shape('balok',this)">🟫 Balok</button>
+        <button class="sbtn" onclick="setM4Shape('tabung',this)">🥫 Tabung</button>
+        <button class="sbtn" onclick="setM4Shape('kerucut',this)">🔺 Kerucut</button>
+      </div>
+      <div class="inp-row"><span class="inp-lbl">↔ Panjang/s</span><input type="range" id="m4p" min="1" max="20" value="8" oninput="calcM4()"><span class="inp-num" id="m4pv">8</span></div>
+      <div class="inp-row" id="m4row-l"><span class="inp-lbl">↕ Lebar</span><input type="range" id="m4l" min="1" max="20" value="5" oninput="calcM4()"><span class="inp-num" id="m4lv">5</span></div>
+      <div class="inp-row" id="m4row-t"><span class="inp-lbl">🔼 Tinggi</span><input type="range" id="m4t" min="1" max="20" value="4" oninput="calcM4()"><span class="inp-num" id="m4tv">4</span></div>
+      <div class="inp-row" id="m4row-r" style="display:none"><span class="inp-lbl">⭕ Jari-jari</span><input type="range" id="m4r" min="1" max="14" value="7" oninput="calcM4()"><span class="inp-num" id="m4rv">7</span></div>
+      <div class="unit-sel"><label>📏 Satuan:</label>
+        <select id="m4unit" onchange="calcM4()"><option>cm³</option><option>m³</option><option>dm³</option><option>mm³</option></select>
+      </div>
+      <div class="res-box" style="background:linear-gradient(135deg,#06C9D7,#2DD4A2)">
+        <div class="res-lbl">Volume Bangun</div>
+        <div class="res-num" id="m4res">160</div>
+        <div class="res-unit" id="m4unit-d">cm³</div>
+        <div class="res-formula" id="m4formula">8 × 5 × 4 = 160 cm³</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="m4-t4d">
+    <div class="soal-card" id="s4-1">
+      <span class="soal-num" style="background:var(--tl)">1</span>
+      <div class="soal-q">📦 Aquarium balok: p=50cm, l=30cm, t=40cm. Berapa volumenya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s4-1',false,'f4-1')">12.000 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-1',false,'f4-1')">48.000 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-1',true,'f4-1')">60.000 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-1',false,'f4-1')">6.000 cm³</button>
+      </div>
+      <div class="fb" id="f4-1" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s4-2">
+      <span class="soal-num" style="background:var(--tl)">2</span>
+      <div class="soal-q">🥫 Tabung: r=7cm, t=10cm (π=22/7). Berapa volumenya?</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s4-2',false,'f4-2')">2.200 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-2',true,'f4-2')">1.540 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-2',false,'f4-2')">770 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-2',false,'f4-2')">3.080 cm³</button>
+      </div>
+      <div class="fb" id="f4-2" style="display:none"></div>
+    </div>
+    <div class="soal-card" id="s4-3">
+      <span class="soal-num" style="background:var(--tl)">3</span>
+      <div class="soal-q">🔄 4 m³ = ... cm³</div>
+      <div class="choices">
+        <button class="cbtn" onclick="jwb(this,'s4-3',false,'f4-3')">400.000 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-3',false,'f4-3')">4.000.000 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-3',true,'f4-3')">4.000.000 cm³</button>
+        <button class="cbtn" onclick="jwb(this,'s4-3',false,'f4-3')">40.000 cm³</button>
+      </div>
+      <div class="fb" id="f4-3" style="display:none"></div>
+    </div>
+  </div>
+</div><!-- /m4 -->
+
+<!-- ══════════ SUMATIF ══════════ -->
+<div id="screen-sumatif">
+  <!-- Start screen -->
+  <div class="sum-start" id="sum-start">
+    <div class="sum-hero">
+      <span class="sum-trophy">📝</span>
+      <div class="sum-title">Penilaian Sumatif</div>
+      <div class="sum-desc">Uji pemahamanmu tentang semua materi Luas & Volume yang sudah kamu pelajari!</div>
+    </div>
+    <div class="sum-info-grid">
+      <div class="sinfo"><div class="sinum" style="color:var(--ye)">25</div><div class="sitxt">Jumlah Soal</div></div>
+      <div class="sinfo"><div class="sinum" style="color:var(--tl)">4</div><div class="sitxt">Materi</div></div>
+      <div class="sinfo"><div class="sinum" style="color:var(--pk)">100</div><div class="sitxt">Nilai Maks</div></div>
+    </div>
+    <div class="ic" style="margin-bottom:16px">
+      <div class="ic-title" style="color:var(--ye)">📋 Petunjuk Pengerjaan</div>
+      <div class="hbox hbox-ye" style="font-size:0.82rem">
+        ① Baca soal dengan teliti<br>
+        ② Pilih satu jawaban yang paling benar<br>
+        ③ Setelah memilih, tekan tombol <strong>Lanjut</strong><br>
+        ④ Jawaban tidak bisa diubah setelah dipilih<br>
+        ⑤ Di akhir akan ada nilai dan analisis per materi
+      </div>
+    </div>
+    <button class="start-btn" onclick="startSumatif()">🚀 Mulai Penilaian</button>
+  </div>
+
+  <!-- Quiz screen -->
+  <div class="sum-quiz" id="sum-quiz">
+    <div class="sq-header">
+      <div class="sq-progress"><div class="sq-bar" id="sq-bar" style="width:4%"></div></div>
+      <div class="sq-score" id="sq-score">⭐ 0</div>
+    </div>
+    <div class="sq-info">
+      <span class="sq-qnum" id="sq-qnum">Soal 1 dari 25</span>
+    </div>
+    <div class="sq-body">
+      <span class="sq-cat" id="sq-cat">MATERI 1</span>
+      <div class="sq-q" id="sq-q">Pertanyaan muncul di sini</div>
+      <div class="sq-opts" id="sq-opts"></div>
+      <div class="sq-fb" id="sq-fb"></div>
+      <button class="sq-next" id="sq-next" onclick="sqNext()" disabled>Lanjut →</button>
+    </div>
+  </div>
+
+  <!-- Hasil screen -->
+  <div class="sum-hasil" id="sum-hasil">
+    <div class="hasil-hero">
+      <span class="htrophy" id="htrophy">🏆</span>
+      <div class="htitle" id="htitle">Luar Biasa!</div>
+      <div class="hgrade" id="hgrade" style="color:var(--gr)">95</div>
+      <div class="hpct" id="hpct">Nilai Akhir</div>
+    </div>
+
+    <div class="analisis-title">📊 Analisis Per Materi</div>
+    <div class="analisis-grid">
+      <div class="acard">
+        <div class="acard-header"><span class="acard-ico">📏</span><span class="acard-title">Luas Satuan Tidak Baku</span></div>
+        <div class="acard-score" id="a1-score" style="color:var(--or)">0/6</div>
+        <div class="acard-sub">soal benar</div>
+        <div class="acard-bar"><div class="acard-fill" id="a1-fill" style="width:0%;background:var(--or)"></div></div>
+      </div>
+      <div class="acard">
+        <div class="acard-header"><span class="acard-ico">📐</span><span class="acard-title">Luas Satuan Baku</span></div>
+        <div class="acard-score" id="a2-score" style="color:var(--bl)">0/6</div>
+        <div class="acard-sub">soal benar</div>
+        <div class="acard-bar"><div class="acard-fill" id="a2-fill" style="width:0%;background:var(--bl)"></div></div>
+      </div>
+      <div class="acard">
+        <div class="acard-header"><span class="acard-ico">📦</span><span class="acard-title">Volume Tidak Baku</span></div>
+        <div class="acard-score" id="a3-score" style="color:var(--pu)">0/6</div>
+        <div class="acard-sub">soal benar</div>
+        <div class="acard-bar"><div class="acard-fill" id="a3-fill" style="width:0%;background:var(--pu)"></div></div>
+      </div>
+      <div class="acard">
+        <div class="acard-header"><span class="acard-ico">🔢</span><span class="acard-title">Volume Satuan Baku</span></div>
+        <div class="acard-score" id="a4-score" style="color:var(--tl)">0/7</div>
+        <div class="acard-sub">soal benar</div>
+        <div class="acard-bar"><div class="acard-fill" id="a4-fill" style="width:0%;background:var(--tl)"></div></div>
+      </div>
+    </div>
+
+    <div class="predikat-box">
+      <div class="pred-label">Predikat & Keterangan</div>
+      <div class="pred-text" id="pred-text">A – Sangat Baik</div>
+      <div class="pred-msg" id="pred-msg"></div>
+      <div class="pred-remedi" id="pred-remedi">
+        <p>📚 <strong>Rekomendasi:</strong> Pelajari kembali materi yang masih kurang dan coba kuis latihan di setiap materi.</p>
+      </div>
+    </div>
+
+    <button class="ulangi-btn" onclick="ulangiSumatif()">🔄 Ulangi Penilaian</button>
+    <button class="back-home-btn" onclick="goHomeFromHasil()">← Kembali ke Beranda</button>
+    <div style="height:20px"></div>
+  </div>
+</div><!-- /sumatif -->
+
+</div><!-- /mainScreen -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottomnav">
+  <button class="bnav-btn active" id="bn-home" onclick="navTo('home')"><span class="bico">🏠</span>Beranda</button>
+  <button class="bnav-btn" id="bn-m1" onclick="navTo('m1')"><span class="bico">📏</span>Luas TB</button>
+  <button class="bnav-btn" id="bn-m2" onclick="navTo('m2')"><span class="bico">📐</span>Luas B</button>
+  <button class="bnav-btn" id="bn-m3" onclick="navTo('m3')"><span class="bico">📦</span>Vol TB</button>
+  <button class="bnav-btn" id="bn-m4" onclick="navTo('m4')"><span class="bico">🔢</span>Vol B</button>
+</nav>
+
+<script>
+// ======================================================
+// NAVIGATION
+// ======================================================
+let currentScreen = 'home';
+const screenMap = {
+  home:'screen-home', m1:'screen-m1', m2:'screen-m2',
+  m3:'screen-m3', m4:'screen-m4', sumatif:'screen-sumatif'
+};
+const titleMap = {
+  home:'MatematikAku', m1:'Luas Tidak Baku',
+  m2:'Luas Satuan Baku', m3:'Volume Tidak Baku', m4:'Volume Satuan Baku',
+  sumatif:'Penilaian Sumatif'
+};
+
+function showScreen(id) {
+  Object.values(screenMap).forEach(s => {
+    const el = document.getElementById(s);
+    if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+  });
+  const el = document.getElementById(screenMap[id]);
+  if (el) { el.style.display = 'block'; el.classList.add('active'); }
+  document.getElementById('mainScreen').scrollTop = 0;
+  document.getElementById('topbarTitle').innerHTML =
+    id === 'home' ? 'Matematik<span style="color:var(--ye)">Aku</span>' : titleMap[id];
+  const back = document.getElementById('backBtn');
+  const badge = document.getElementById('topbarBadge');
+  back.style.display = id === 'home' ? 'none' : 'flex';
+  badge.style.display = id === 'home' ? 'block' : 'none';
+  // bottom nav
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  const bnav = document.getElementById('bn-' + id);
+  if (bnav) bnav.classList.add('active');
+  currentScreen = id;
+}
+
+function navTo(id) {
+  if (id === 'home') { showScreen('home'); return; }
+  showScreen(id);
+}
+
+function openMateri(n) { showScreen('m'+n); }
+function openSumatif() { showScreen('sumatif'); document.getElementById('sum-start').style.display='block'; document.getElementById('sum-quiz').style.display='none'; document.getElementById('sum-hasil').style.display='none'; }
+function goBack() { showScreen('home'); }
+function goHomeFromHasil() { showScreen('home'); }
+
+// ======================================================
+// MINI TABS (per materi)
+// ======================================================
+function switchTab(prefix, tab, btn) {
+  document.querySelectorAll('#tabs-' + prefix + ' .mtab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#screen-' + prefix + ' .tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(prefix + '-' + tab).classList.add('active');
+}
+
+// ======================================================
+// CALC M1 – LUAS TIDAK BAKU
+// ======================================================
+let m1Shape = 'ppj';
+function setM1Shape(sh, btn) {
+  m1Shape = sh;
+  document.querySelectorAll('#screen-m1 .sbtn').forEach(b => { b.classList.remove('active'); b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+  btn.classList.add('active'); btn.style.background='var(--or)'; btn.style.color='#fff'; btn.style.borderColor='var(--or)';
+  document.getElementById('m1row-l').style.display = (sh==='segitiga') ? 'none' : '';
+  document.getElementById('m1row-t').style.display = (sh==='segitiga') ? '' : 'none';
+  calcM1();
+}
+function calcM1() {
+  const p=+document.getElementById('m1p').value, l=+document.getElementById('m1l').value, t=+document.getElementById('m1t').value;
+  const unit = document.getElementById('m1unit').value;
+  document.getElementById('m1pv').textContent=p; document.getElementById('m1lv').textContent=l; document.getElementById('m1tv').textContent=t;
+  let a, f;
+  if (m1Shape==='ppj') { a=p*l; f=`${p} × ${l} = ${a}`; }
+  else if (m1Shape==='persegi') { a=p*p; f=`${p} × ${p} = ${a}`; }
+  else { a=Math.round(0.5*p*t); f=`½ × ${p} × ${t} = ${a}`; }
+  document.getElementById('m1res').textContent=a;
+  document.getElementById('m1unit-d').textContent=unit;
+  document.getElementById('m1formula').textContent=f;
+  renderViz('m1viz','m1vizcnt',Math.min(a,48),unit,['#FF9A5C','#FF6B35','#FF4500']);
+}
+
+// ======================================================
+// CALC M2 – LUAS BAKU
+// ======================================================
+let m2Shape='ppj';
+function setM2Shape(sh,btn) {
+  m2Shape=sh;
+  document.querySelectorAll('#screen-m2 .sbtn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';b.style.borderColor='';});
+  btn.classList.add('active'); btn.style.background='var(--bl)'; btn.style.color='#fff'; btn.style.borderColor='var(--bl)';
+  document.getElementById('m2row-l').style.display = (sh==='persegi'||sh==='lingkaran') ? 'none' : '';
+  document.getElementById('m2row-t').style.display = (sh==='segitiga') ? '' : 'none';
+  document.getElementById('m2row-r').style.display = (sh==='lingkaran') ? '' : 'none';
+  calcM2();
+}
+function calcM2() {
+  const p=+document.getElementById('m2p').value, l=+document.getElementById('m2l').value;
+  const t=+document.getElementById('m2t').value, r=+document.getElementById('m2r').value;
+  const u=document.getElementById('m2unit').value;
+  document.getElementById('m2pv').textContent=p; document.getElementById('m2lv').textContent=l;
+  document.getElementById('m2tv').textContent=t; document.getElementById('m2rv').textContent=r;
+  let a, f;
+  if (m2Shape==='ppj') { a=p*l; f=`${p} × ${l} = ${a} ${u}`; }
+  else if (m2Shape==='persegi') { a=p*p; f=`${p}² = ${a} ${u}`; }
+  else if (m2Shape==='segitiga') { a=parseFloat((0.5*p*t).toFixed(2)); f=`½×${p}×${t} = ${a} ${u}`; }
+  else { a=parseFloat((22/7*r*r).toFixed(2)); f=`22/7×${r}² = ${a} ${u}`; }
+  document.getElementById('m2res').textContent=a;
+  document.getElementById('m2unit-d').textContent=u;
+  document.getElementById('m2formula').textContent=f;
+}
+
+// ======================================================
+// CALC M3 – VOLUME TIDAK BAKU
+// ======================================================
+let m3Shape='kubus';
+function setM3Shape(sh,btn) {
+  m3Shape=sh;
+  document.querySelectorAll('#screen-m3 .sbtn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';b.style.borderColor='';});
+  btn.classList.add('active'); btn.style.background='var(--pu)'; btn.style.color='#fff'; btn.style.borderColor='var(--pu)';
+  document.getElementById('m3row-l').style.display = sh==='balok' ? '' : 'none';
+  document.getElementById('m3row-t').style.display = sh==='balok' ? '' : 'none';
+  calcM3();
+}
+function calcM3() {
+  const p=+document.getElementById('m3p').value, l=+document.getElementById('m3l').value, t=+document.getElementById('m3t').value;
+  const u=document.getElementById('m3unit').value;
+  document.getElementById('m3pv').textContent=p; document.getElementById('m3lv').textContent=l; document.getElementById('m3tv').textContent=t;
+  let v, f;
+  if (m3Shape==='kubus') { v=p*p*p; f=`${p}×${p}×${p} = ${v}`; }
+  else { v=p*l*t; f=`${p}×${l}×${t} = ${v}`; }
+  document.getElementById('m3res').textContent=v;
+  document.getElementById('m3unit-d').textContent=u;
+  document.getElementById('m3formula').textContent=f;
+  renderViz('m3viz','m3vizcnt',Math.min(v,48),u,['#C4A0F5','#9B5DE5','#7B2FBE']);
+}
+
+// ======================================================
+// CALC M4 – VOLUME BAKU
+// ======================================================
+let m4Shape='kubus';
+function setM4Shape(sh,btn) {
+  m4Shape=sh;
+  document.querySelectorAll('#screen-m4 .sbtn').forEach(b=>{b.classList.remove('active');b.style.background='';b.style.color='';b.style.borderColor='';});
+  btn.classList.add('active'); btn.style.background='var(--tl)'; btn.style.color='#fff'; btn.style.borderColor='var(--tl)';
+  const showL=sh==='balok', showT=sh!=='kubus'&&sh!=='bola', showR=sh==='tabung'||sh==='kerucut';
+  document.getElementById('m4row-l').style.display=showL?'':'none';
+  document.getElementById('m4row-t').style.display=showT?'':'none';
+  document.getElementById('m4row-r').style.display=showR?'':'none';
+  calcM4();
+}
+function calcM4() {
+  const p=+document.getElementById('m4p').value, l=+document.getElementById('m4l').value;
+  const t=+document.getElementById('m4t').value, r=+document.getElementById('m4r').value;
+  const u=document.getElementById('m4unit').value;
+  document.getElementById('m4pv').textContent=p; document.getElementById('m4lv').textContent=l;
+  document.getElementById('m4tv').textContent=t; document.getElementById('m4rv').textContent=r;
+  let v, f;
+  if (m4Shape==='kubus') { v=p*p*p; f=`${p}³ = ${v} ${u}`; }
+  else if (m4Shape==='balok') { v=p*l*t; f=`${p}×${l}×${t} = ${v} ${u}`; }
+  else if (m4Shape==='tabung') { v=parseFloat((22/7*r*r*t).toFixed(1)); f=`22/7×${r}²×${t} = ${v} ${u}`; }
+  else { v=parseFloat((1/3*22/7*r*r*t).toFixed(1)); f=`⅓×22/7×${r}²×${t} = ${v} ${u}`; }
+  document.getElementById('m4res').textContent=v;
+  document.getElementById('m4unit-d').textContent=u;
+  document.getElementById('m4formula').textContent=f;
+}
+
+// ======================================================
+// TILE VISUALIZER
+// ======================================================
+function renderViz(cId,lId,count,unit,colors) {
+  const c=document.getElementById(cId), l=document.getElementById(lId);
+  c.innerHTML='';
+  for (let i=0;i<count;i++) {
+    const d=document.createElement('div');
+    d.className='vtile';
+    d.style.background=`linear-gradient(135deg,${colors[i%colors.length]},${colors[(i+1)%colors.length]})`;
+    d.style.animationDelay=(i*0.015)+'s';
+    d.textContent='⬛';
+    c.appendChild(d);
+  }
+  const real=parseInt(document.getElementById(cId.replace('viz','res'))||{textContent:count}).textContent||count;
+  l.textContent = count<real ? `Menampilkan ${count} dari ${real} ${unit}` : `Total: ${real} ${unit}`;
+}
+
+// ======================================================
+// LATIHAN – PILIHAN GANDA
+// ======================================================
+const done={};
+function jwb(btn,id,benar,fbId) {
+  if (done[id]) return;
+  done[id]=true;
+  const wrap=document.getElementById(id);
+  const fb=document.getElementById(fbId);
+  wrap.querySelectorAll('.cbtn').forEach(b=>b.disabled=true);
+  if (benar) {
+    btn.classList.add('ok');
+    wrap.classList.add('ok');
+    fb.textContent='✅ Benar! Kamu hebat!';
+    fb.className='fb fb-ok';
+  } else {
+    btn.classList.add('err');
+    wrap.classList.add('err');
+    wrap.querySelectorAll('.cbtn').forEach(b=>{ if(b.onclick.toString().includes('true')) b.classList.add('reveal'); });
+    fb.textContent='❌ Belum tepat. Coba perhatikan rumusnya!';
+    fb.className='fb fb-err';
+  }
+  fb.style.display='block';
+}
+
+// ======================================================
+// PENILAIAN SUMATIF – 25 SOAL
+// ======================================================
+const SOAL = [
+  // MATERI 1 – Luas Tidak Baku (6 soal)
+  {m:1, cat:'📏 Luas Satuan Tidak Baku', q:'Permukaan meja ditutup kartu: 6 baris × 5 kolom. Berapa luas meja?', opts:['30 kartu','22 kartu','11 kartu','28 kartu'], ans:0},
+  {m:1, cat:'📏 Luas Satuan Tidak Baku', q:'Buku persegi ditutup uang logam. Sisinya = 8 uang logam. Berapa luasnya?', opts:['16 uang','32 uang','48 uang','64 uang'], ans:3},
+  {m:1, cat:'📏 Luas Satuan Tidak Baku', q:'Gambar segitiga: alas 10 petak, tinggi 6 petak. Berapa luasnya?', opts:['60 petak','40 petak','30 petak','16 petak'], ans:2},
+  {m:1, cat:'📏 Luas Satuan Tidak Baku', q:'Persegi panjang ditutup daun: 7 baris × 4 kolom. Berapa luas bidang itu?', opts:['11 daun','28 daun','21 daun','32 daun'], ans:1},
+  {m:1, cat:'📏 Luas Satuan Tidak Baku', q:'Sebuah bidang ditutupi 5 baris uang logam. Tiap baris ada 9 koin. Berapa luasnya?', opts:['14 koin','35 koin','45 koin','54 koin'], ans:2},
+  {m:1, cat:'📏 Luas Satuan Tidak Baku', q:'Dua persegi panjang: A (4×7 petak) dan B (7×4 petak). Mana yang lebih luas?', opts:['A lebih luas','B lebih luas','Sama luasnya','Tidak bisa dibandingkan'], ans:2},
+  // MATERI 2 – Luas Satuan Baku (6 soal)
+  {m:2, cat:'📐 Luas Satuan Baku', q:'Taman persegi panjang: p=15 m, l=8 m. Berapa luasnya?', opts:['92 m²','120 m²','46 m²','130 m²'], ans:1},
+  {m:2, cat:'📐 Luas Satuan Baku', q:'Segitiga: alas=12 cm, tinggi=10 cm. Berapa luasnya?', opts:['120 cm²','60 cm²','44 cm²','22 cm²'], ans:1},
+  {m:2, cat:'📐 Luas Satuan Baku', q:'Lantai persegi dengan sisi 6 m. Berapa luasnya?', opts:['12 m²','24 m²','36 m²','48 m²'], ans:2},
+  {m:2, cat:'📐 Luas Satuan Baku', q:'Lingkaran dengan jari-jari 7 cm (π=22/7). Berapa luasnya?', opts:['44 cm²','98 cm²','154 cm²','308 cm²'], ans:2},
+  {m:2, cat:'📐 Luas Satuan Baku', q:'5 m² = ... cm²', opts:['500 cm²','5.000 cm²','50.000 cm²','500.000 cm²'], ans:2},
+  {m:2, cat:'📐 Luas Satuan Baku', q:'Layang-layang: d₁=12 cm, d₂=9 cm. Berapa luasnya?', opts:['108 cm²','54 cm²','63 cm²','27 cm²'], ans:1},
+  // MATERI 3 – Volume Tidak Baku (6 soal)
+  {m:3, cat:'📦 Volume Tidak Baku', q:'Kubus dengan rusuk 4 kubus satuan. Berapa volumenya?', opts:['12 satuan','16 satuan','32 satuan','64 satuan'], ans:3},
+  {m:3, cat:'📦 Volume Tidak Baku', q:'Balok: p=5, l=4, t=3 kotak korek. Berapa volumenya?', opts:['40 kotak','45 kotak','60 kotak','48 kotak'], ans:2},
+  {m:3, cat:'📦 Volume Tidak Baku', q:'Kotak diisi 5 lapisan, tiap lapisan = 12 balok mainan. Berapa total volumenya?', opts:['17 balok','36 balok','48 balok','60 balok'], ans:3},
+  {m:3, cat:'📦 Volume Tidak Baku', q:'Volume kubus = 125 kubus satuan. Berapa panjang rusuknya?', opts:['3 satuan','4 satuan','5 satuan','25 satuan'], ans:2},
+  {m:3, cat:'📦 Volume Tidak Baku', q:'Balok A: p=6, l=2, t=3 satuan. Balok B: p=3, l=4, t=3 satuan. Mana yang lebih besar volumenya?', opts:['A=36, B=36 (sama)','A lebih besar','B lebih besar','Tidak bisa dibandingkan'], ans:0},
+  {m:3, cat:'📦 Volume Tidak Baku', q:'Sebuah aquarium mini dapat memuat 2 lapisan, tiap lapisan 20 kubus. Berapa volumenya?', opts:['22 kubus','30 kubus','40 kubus','45 kubus'], ans:2},
+  // MATERI 4 – Volume Satuan Baku (7 soal)
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'Kubus dengan sisi 5 cm. Berapa volumenya?', opts:['25 cm³','75 cm³','100 cm³','125 cm³'], ans:3},
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'Balok: p=10 cm, l=4 cm, t=5 cm. Berapa volumenya?', opts:['19 cm³','38 cm³','100 cm³','200 cm³'], ans:3},
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'Tabung: r=7 cm, t=10 cm (π=22/7). Berapa volumenya?', opts:['440 cm³','770 cm³','1.540 cm³','2.200 cm³'], ans:2},
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'Volume kubus = 512 cm³. Berapa panjang rusuknya?', opts:['6 cm','7 cm','8 cm','9 cm'], ans:2},
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'3 m³ = ... cm³', opts:['300.000 cm³','3.000.000 cm³','30.000.000 cm³','300.000.000 cm³'], ans:1},
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'Aquarium balok: p=50 cm, l=30 cm, t=40 cm. Berapa volumenya?', opts:['6.000 cm³','12.000 cm³','48.000 cm³','60.000 cm³'], ans:3},
+  {m:4, cat:'🔢 Volume Satuan Baku', q:'Kerucut: r=7 cm, t=6 cm (π=22/7). Berapa volumenya?', opts:['154 cm³','308 cm³','462 cm³','924 cm³'], ans:1},
+];
+
+let sqIdx=0, sqScore=0, sqAnswers=[];
+
+function startSumatif() {
+  sqIdx=0; sqScore=0; sqAnswers=Array(25).fill(null);
+  document.getElementById('sum-start').style.display='none';
+  document.getElementById('sum-quiz').style.display='block';
+  document.getElementById('sum-hasil').style.display='none';
+  renderSQ();
+}
+
+function renderSQ() {
+  const q=SOAL[sqIdx];
+  document.getElementById('sq-bar').style.width=((sqIdx+1)/25*100)+'%';
+  document.getElementById('sq-qnum').textContent=`Soal ${sqIdx+1} dari 25`;
+  document.getElementById('sq-score').textContent=`⭐ ${sqScore}`;
+  document.getElementById('sq-cat').textContent=q.cat;
+  document.getElementById('sq-q').textContent=q.q;
+  document.getElementById('sq-fb').style.display='none';
+  document.getElementById('sq-next').disabled=true;
+  const opts=document.getElementById('sq-opts');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='sq-opt';
+    b.textContent=o;
+    b.onclick=()=>pickSQ(b,i,q.ans);
+    opts.appendChild(b);
+  });
+}
+
+function pickSQ(btn,sel,correct) {
+  document.querySelectorAll('#sq-opts .sq-opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('sq-fb');
+  sqAnswers[sqIdx]={sel,correct,mat:SOAL[sqIdx].m};
+  if (sel===correct) {
+    btn.classList.add('kor'); sqScore++;
+    document.getElementById('sq-score').textContent=`⭐ ${sqScore}`;
+    fb.textContent='✅ Jawaban benar!'; fb.className='sq-fb ok';
+  } else {
+    btn.classList.add('sal');
+    document.querySelectorAll('#sq-opts .sq-opt')[correct].classList.add('rv');
+    fb.textContent='❌ Belum tepat. Jawaban yang benar sudah ditandai hijau.'; fb.className='sq-fb err';
+  }
+  fb.style.display='block';
+  document.getElementById('sq-next').disabled=false;
+}
+
+function sqNext() {
+  sqIdx++;
+  if (sqIdx>=25) { showHasilSumatif(); }
+  else { renderSQ(); }
+}
+
+function showHasilSumatif() {
+  document.getElementById('sum-quiz').style.display='none';
+  document.getElementById('sum-hasil').style.display='block';
+  document.getElementById('mainScreen').scrollTop=0;
+
+  // hitung nilai
+  const nilai=Math.round(sqScore/25*100);
+
+  // analisis per materi [total soal per materi: 6,6,6,7]
+  const totals=[6,6,6,7];
+  const benar=[0,0,0,0];
+  sqAnswers.forEach(a=>{ if(a&&a.sel===a.correct) benar[a.mat-1]++; });
+
+  // tampil grade
+  document.getElementById('hgrade').textContent=nilai;
+  const gradeColors=['var(--rd)','var(--pk)','var(--ye)','var(--gr)'];
+  document.getElementById('hgrade').style.color = nilai>=75?'var(--gr)':nilai>=60?'var(--ye)':nilai>=50?'var(--pk)':'var(--rd)';
+
+  // analisis per materi
+  ['a1','a2','a3','a4'].forEach((id,i)=>{
+    document.getElementById(id+'-score').textContent=`${benar[i]}/${totals[i]}`;
+    document.getElementById(id+'-fill').style.width=(benar[i]/totals[i]*100)+'%';
+  });
+
+  // predikat
+  let trophy,title,pred,msg;
+  if (nilai>=90){trophy='🏆';title='Luar Biasa!';pred='A – Sangat Baik';msg='Selamat! Kamu menguasai semua materi Luas & Volume dengan sangat baik!';}
+  else if (nilai>=80){trophy='🥇';title='Hebat!';pred='B – Baik';msg='Bagus sekali! Sedikit lagi kamu bisa meraih nilai sempurna!';}
+  else if (nilai>=70){trophy='🥈';title='Bagus!';pred='B – Baik';msg='Kamu sudah memahami sebagian besar materi. Terus tingkatkan!';}
+  else if (nilai>=60){trophy='🥉';title='Cukup Baik';pred='C – Cukup';msg='Kamu perlu berlatih lebih banyak. Pelajari kembali materi yang masih kurang.';}
+  else {trophy='📚';title='Tetap Semangat!';pred='D – Perlu Bimbingan';msg='Jangan menyerah! Baca ulang semua materi dan coba latihan soal dulu.';}
+
+  document.getElementById('htrophy').textContent=trophy;
+  document.getElementById('htitle').textContent=title;
+  document.getElementById('pred-text').textContent=pred;
+  document.getElementById('pred-msg').textContent=msg;
+  document.getElementById('pred-remedi').style.display=nilai<75?'block':'none';
+  document.getElementById('hpct').textContent=`${sqScore} benar dari 25 soal`;
+}
+
+function ulangiSumatif() {
+  document.getElementById('sum-hasil').style.display='none';
+  document.getElementById('sum-start').style.display='block';
+  document.getElementById('mainScreen').scrollTop=0;
+}
+
+// ======================================================
+// INIT
+// ======================================================
+showScreen('home');
+calcM1(); calcM2(); calcM3(); calcM4();
+</script>
+</body>
+</html>
